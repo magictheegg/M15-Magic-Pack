@@ -886,6 +886,11 @@ styling field:
 	description: Door offsets
 styling field:
 	type: boolean
+	name: battle
+	description: Add a Defense icon to the bottom right
+	initial: no
+styling field:
+	type: boolean
 	name: remove from autocount
 	description: Removes the automatic card number for specific cards, to allow for overcounted cards like in Planeswalker Decks.
 	initial: no
@@ -1640,6 +1645,17 @@ card style:
 		image:				{ illustrator_brush_image(field: 1) }
 		z index:			900
 ############################################################## Extra card fields
+extra card field:
+	type: choice
+	name: defense
+	editable: false
+	save value: false
+	script: card.card_color
+extra card field:
+	type: text
+	name: defense text
+	editable: true
+	save value: true
 extra card field:
 	type: text
 	name: reminder
@@ -2617,6 +2633,28 @@ extra card field:
 	choice: custom symbol 2
 	default: door_direction(y:8, x:4)
 extra card style:
+	defense:
+		left: 315
+		top: 444
+		width: 45
+		height: 42
+		z index: 1000
+		render style: image
+		image: defense.png
+		visible: { styling.battle }
+	defense text:
+		left: 327
+		top: 452
+		width: 22
+		height:	26
+		alignment: center middle
+		font:
+			name: Beleren Bold
+			size: 13
+			color: white
+			separator color: red
+		z index: 1001
+		visible: { styling.battle }
 	reminder:
 		left: 24
 		top: 62

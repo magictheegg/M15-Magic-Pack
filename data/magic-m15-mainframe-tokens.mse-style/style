@@ -329,6 +329,11 @@ styling field:
 	name: custom pt font
 	description: Formatted as "font name;font size;font color;vertical offset;italic font name" last 4 are optional. color can be a name or R,G,B,A numbers.
 styling field:
+	type: boolean
+	name: battle
+	description: Add a Defense icon to the bottom right
+	initial: no
+styling field:
 	type: text
 	name: popout image style
 	description: The styling instructions for the popout image field, formatted as "left,top,width,height,". The text MUST end with a comma.
@@ -659,6 +664,17 @@ card style:
 ############################################################## Extra card fields
 extra card field:
 	type: choice
+	name: defense
+	editable: false
+	save value: false
+	script: card.card_color
+extra card field:
+	type: text
+	name: defense text
+	editable: true
+	save value: true
+extra card field:
+	type: choice
 	name: pt box
 	script: card.card_color
 	editable: false
@@ -769,6 +785,28 @@ extra card field:
 	save value: false
 	script: card.card_color
 extra card style:
+	defense:
+		left: 315
+		top: 444
+		width: 45
+		height: 42
+		z index: 1000
+		render style: image
+		image: defense.png
+		visible: { styling.battle }
+	defense text:
+		left: 327
+		top: 452
+		width: 22
+		height:	26
+		alignment: center middle
+		font:
+			name: Beleren Bold
+			size: 13
+			color: white
+			separator color: red
+		z index: 1001
+		visible: { styling.battle }
 	pt box:
 		left: {if center_pt() then 144 else 273 }
 		top: 466

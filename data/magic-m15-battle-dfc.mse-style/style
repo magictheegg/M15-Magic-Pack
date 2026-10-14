@@ -1,0 +1,889 @@
+﻿mse version: 2.0.0
+game: magic
+short name: M15 Battle DFCs
+full name: M15 Battle DFCs
+installer group: magic/m15 style/double-faced cards
+icon: card-sample.png
+position hint: 060
+
+version: 2020-09-04
+depends on:
+	package: magic.mse-game
+	version: 2014-06-25
+depends on:
+	package: magic-watermarks.mse-include
+	version: 2007-09-23
+depends on:
+	package: magic-mana-large.mse-symbol-font
+	version: 2007-09-23
+depends on:
+	package: magic-mana-small.mse-symbol-font
+	version: 2007-09-23
+depends on:
+	package: magic-identity-new.mse-include
+	version: 2012-01-22
+depends on:
+	package: magic-mainframe-extras.mse-include
+	version: 2017-05-05
+depends on:
+	package: magic-default-image.mse-include
+	version: 2007-09-23
+depends on:
+	package: magic-pride.mse-include
+	version: 2021-05-26
+
+card width: 900
+card height: 523
+card dpi: 150
+############################################################## Extra scripts
+init script:
+	# Load scripts for image box
+	include file: /magic-default-image.mse-include/scripts
+	include file: /magic-pride.mse-include/scripts
+	# Should hybrids have a grey name?
+	mask_hybrid_with_land := { styling.grey_hybrid_name }
+	text_filter := text_filter + {apply_margins(input, name:margin_code)} + {if is_modal(input) then bump_text(softline_ripper(input)) else input}
+	
+	####### Create images
+	
+	template_prefix := [card: "battle/" map: "maps/" identity: "/magic-identity-new.mse-include/" identity2: "/magic-identity-new.mse-include/"]
+	template_suffix := [card: "card.png" map: "card.png"identity: "identity.png" identity2: "identity.png"]
+	template      := { template_prefix[type] + input + template_suffix[type] }
+	land_template := { template_prefix[type] + (if input == "a" then "c" else input) + template_suffix[type] }
+	# Use land templates for previews because they show more contrast
+	hybrid_previews := "land,hybrid"
+	
+	# The front map face
+	map_background := { color_background(type:"map", base_hybrid:card_hybrid) }
+
+	# Use the normal tap symbol
+	mana_t := {
+		if      styling.tap_symbol == "old"        then "old"
+		else if styling.tap_symbol == "diagonal T" then "older"
+		else                                            "new"
+	}
+	
+	# Use guild mana symbols?
+	guild_mana := { styling.use_guild_mana_symbols }	
+	
+	####### Shape things
+	card_shape := { "double faced" }
+		
+	######## General Stuff
+	lv_chop := { pull_comma_array(input, cell:cell, end:0, default:0)}
+	
+	top_of_textbox := { 249 - lv_chop(styling.level_1_chop, cell:0 )}
+	bottom_of_textbox := { 357 - lv_chop(styling.level_1_chop, cell:1) }
+
+	top_of_textbox2 := { 340 - lv_chop(styling.level_5_chop, cell:0 )}
+	bottom_of_textbox2 := { 475 - lv_chop(styling.level_5_chop, cell:1) }
+
+	mask_script := { if contains(styling.custom_mask, match:".png") then "/magic-mainframe-extras.mse-include/" + styling.custom_mask
+		else if is_full() and is_normal() and not is_saga() and not is_map() then "front_mythic_mask.png"
+		else if front_clear() and is_normal() then "imagemask_clear_normal.png"
+		else if front_clear() then "imagemask_clear.png"
+		else if is_mutate() then "mutate_mask.png"
+		else if not mainframe_walker() then ""
+		else "planeswalker/guidelines/"
+			+ (if front_clear() then "clear_" else if is_normal_size() or is_full() then "" else "wide_")
+			+ (if max_level() > 3 or force_tall() then "four_" else "")
+			+ (if front_clear() then "frame_mask" else if is_full() then "mythic_mask" else "frame_mask")
+			+ ".png"
+	}
+	back_mask_script := { "" }
+
+	##### mainframe stuff
+	shrink_type := {if styling.shrink_typeline_text != "" then to_number(styling.shrink_typeline_text) else 0 }
+	shrink_name := {if styling.shrink_name_text != "" then to_number(styling.shrink_name_text) else 0 }
+	shrink_type2 := {if styling.shrink_back_typeline_text != "" then to_number(styling.shrink_back_typeline_text) else 0 }
+	shrink_name2 := {if styling.shrink_back_name_text != "" then to_number(styling.shrink_back_name_text) else 0 }
+
+	use_main_rarity := { contains(set.mainframe_rarity_name, match: ".png")}
+	un_png := replace@(match:".png", replace: "")
+	unindent := {chosen(styling.other_options, choice:"unindent nonloyalty abilities")}
+
+	back_face := replace@(match:"([0-9])a", replace:"\\1b")
+
+	shown_cr := {if set.automatic_copyright then set.copyright != "" else card.copyright != ""}
+
+############################################################## Set info fields
+set info style:
+	symbol:
+		variation:
+			name: invertedcommon
+			border radius: 0.10
+			fill type: solid
+			fill color:   rgb(255,255,255)
+			border color: rgb(0,0,0)
+############################################################## Extra style options
+styling field:
+	type: text
+	name: popout image style
+	description: The styling instructions for the popout image field, formatted as "left,top,width,height,". The text MUST end with a comma.
+styling field:
+	type: text
+	name: front font cap
+	description: Use to standardize the font size of separated abilities. Default is size 14.
+styling field:
+	type: text
+	name: shrink name text
+	description: reduces the name text N points.
+styling field:
+	type: text
+	name: shrink typeline text
+	description: reduces the typeline text N points.
+styling field:
+	type: text
+	name: level 1 chop
+	description: Changes the start/stop points of the first textbox. Use negative to move down. Formatted as "1,2," MUST end with a comma.
+styling field:
+	type: text
+	name: back font cap
+	description: Use to standardize the font size of separated abilities of the back face. Default is size 14.
+styling field:
+	type: text
+	name: shrink back name text
+	description: reduces the name text N points.
+styling field:
+	type: text
+	name: shrink back typeline text
+	description: reduces the typeline text N points.
+styling field:
+	type: text
+	name: level 5 chop
+	description: Changes the start/stop points of the first textbox of the back face. Use negative to move down. Formatted as "1,2," MUST end with a comma.
+styling field:
+	type: text
+	name: custom mask
+	description: Uses a custom mask from data/magic-mainframe-extras.mse-include
+styling field:
+	type: text
+	name: custom mask 2
+	description: Uses a custom mask from data/magic-mainframe-extras.mse-include
+styling field:
+	type: text
+	name: custom symbol one
+	description: Uses a custom DFC symbol from data/magic-mainframe-extras.mse-include
+styling field:
+	type: text
+	name: custom symbol two
+	description: Uses a custom DFC symbol from data/magic-mainframe-extras.mse-include
+styling field:
+	type: multiple choice
+	name: other options
+	description: Additional options
+	choice: normal back face
+	choice: mythic edition
+	choice: prerelease stamps
+	choice: remove from autocount
+	choice: use hovering pt
+	choice: use hovering loyalty
+	choice: center front
+	choice: center back
+	choice: center first name
+	choice: center second name
+	choice: automate type frames
+	initial: use hovering pt,  back color indicator, unindent nonloyalty abilities, auto nyx crowns, automate type frames
+styling field:
+	type: boolean
+	name: grey hybrid name
+	description: Use a grey background for the name and type line on hybrid cards. This is done on real cards.
+styling field:
+	type: boolean
+	name: use guild mana symbols
+	description: Use the Ravnica guild symbols instead of the official half/half circles for hybrid mana.
+	initial: no
+styling field:
+	type: package choice
+	name: text box mana symbols
+	match: magic-mana-*.mse-symbol-font
+	initial: magic-mana-small.mse-symbol-font
+styling field:
+	type: package choice
+	name: level mana symbols
+	match: magic-mana-*.mse-symbol-font
+	initial: magic-mana-large.mse-symbol-font
+styling field:
+	type: choice
+	name: tap symbol
+	description: What tap and untap symbols should be used on cards?
+	initial: modern
+	choice: modern
+	choice: old
+	choice: diagonal T
+styling field:
+	type: boolean
+	name: inverted common symbol
+	description: Should the common rarity symbol be inverted, like in Coldsnap?
+	initial: no
+styling field:
+	type: package choice
+	name: overlay
+	description: Should there be an overlay applied, such as foil?
+	match: magic-overlay-*.mse-include
+	required: false
+styling style:
+	use guild mana symbols:
+		choice images:
+			yes: /magic-mana-small.mse-symbol-font/mana_guild_rg.png
+			no:  /magic-mana-small.mse-symbol-font/mana_rg.png
+	tap symbol:
+		render style: both
+		choice images:
+			modern:     /magic-mana-large.mse-symbol-font/mana_t.png
+			old:        /magic-mana-large.mse-symbol-font/mana_t_old.png
+			diagonal T: /magic-mana-large.mse-symbol-font/mana_t_older.png
+	inverted common symbol:
+		choice images:
+			no:  { symbol_variation(symbol: set.symbol, variation: "common") }
+			yes: { symbol_variation(symbol: set.symbol, variation: "invertedcommon") }
+	other options:
+		render style: checklist
+		direction: vertical
+############################################################## Card fields
+card style:
+	############################# Background stuff
+	border color:
+		left: 0
+		top : 0
+		width:	523
+		height:	375
+		radius: 18
+		left width:   18
+		right width:  17
+		top width:    17
+		bottom width: 17
+		z index: 4
+		mask: battle/border_mask.png
+	card color:
+		left:	0
+		top:	0
+		width:	523
+		height:	375
+		z index: 0
+		render style: image
+		popup style: in place
+		image: { card_background() }
+		mask: battle/frame_mask.png
+	############################# Name line
+	name:
+		left: 91
+		top: 21.5
+		right:  { 470 - card_style.casting_cost.content_width }
+		height: { 23 - (0.5 * shrink_name()) }
+		alignment: bottom shrink-overflow
+		padding bottom: 0
+		z index: 1
+		font:
+			name: Beleren Bold
+			size: { 16 - shrink_name()}
+			color: black
+	name 2:
+		left: 590
+		top: 27
+		right: { 867 - card_style.casting_cost_2.content_width }
+		height: {23 - (0.5 * shrink_name2())}
+		alignment: { if chosen(styling.other_options, choice:"center second name") then "bottom center" else "bottom shrink-overflow"}
+		padding bottom: 0
+		z index: 3
+		font:
+			name: Beleren Small Caps
+			size: { 14.8 - shrink_name2() }
+			color: black
+	casting cost:
+		right: 485
+		top: 22
+		width: { max(30, card_style.casting_cost.content_width) + 5 }
+		height: 23
+		alignment: middle right
+		font:
+			name: MPlantin
+			size: 15
+		symbol font:
+			name: magic-mana-large
+			size: 15
+			alignment: middle right
+		always symbol: true
+		z index: 2
+		padding top: 0
+	############################# Image
+	image:
+		left: 43
+		top: 15
+		width: 466
+		height:	341
+		z index: -1
+		default: {default_image(card.card_color)}
+	image 2:
+		left: 525
+		top: 57
+		width: 375
+		height:	241
+		z index: 1
+		mask: { back_mask_script() }
+		default: {default_image(card.card_color_2)}
+	mainframe image:
+		left: {if comma_count(styling.popout_image_style) == ",,,," then split_text(match:",", styling.popout_image_style).0 else "0"}
+		top: {if comma_count(styling.popout_image_style) == ",,,," then split_text(match:",", styling.popout_image_style).1 else "0"}
+		width: {if comma_count(styling.popout_image_style) == ",,,," then split_text(match:",", styling.popout_image_style).2 else "0"}
+		height: {if comma_count(styling.popout_image_style) == ",,,," then split_text(match:",", styling.popout_image_style).3 else "0"}
+		z index: 8
+	############################# Card type
+	type:
+		left: 66
+		top: { 219 + shrink_type() }
+		width: { (if has_identity() then "422" else "441") - max(22,card_style.rarity.content_width) }
+		height: { 20  - shrink_type() }
+		alignment: top shrink-overflow
+		z index: 1
+		padding top: 2
+		font:
+			name: Beleren Bold
+			size: {13 - shrink_type() }
+			color: black
+			separator color: red
+	type 2:
+		left: 610
+		top:299
+		width: 205
+		height: { 18 - shrink_type2() }
+		alignment: center top shrink-overflow
+		z index: 2
+		padding top: 2
+		padding bottom: 4
+		padding right: 2
+		font:
+			name: Beleren Bold
+			size: { 12 - shrink_type2() }
+			color: black
+			separator color: red
+	rarity:
+		right: 485
+		top: 220
+		width: 44
+		height: 22
+		z index: 2
+		render style: image
+		alignment: middle right
+		choice images:
+			# Images based on the set symbol
+			basic land:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "c.png"
+					else if styling.inverted_common_symbol then symbol_variation(symbol: set.symbol, variation: "invertedcommon")
+					else symbol_variation(symbol: set.symbol, variation: "common")
+			common:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "c.png"
+					else if styling.inverted_common_symbol then symbol_variation(symbol: set.symbol, variation: "invertedcommon")
+					else symbol_variation(symbol: set.symbol, variation: "common")
+			uncommon:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "u.png"
+					else symbol_variation(symbol: set.symbol, variation: "uncommon")
+			rare:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "r.png"
+					else symbol_variation(symbol: set.symbol, variation: "rare")
+			mythic rare:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "m.png"
+					else symbol_variation(symbol: set.symbol, variation: "mythic rare")
+			special:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "s.png"
+					else symbol_variation(symbol: set.symbol, variation: "special")
+			masterpiece:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "mp.png"
+					else symbol_variation(symbol: set.masterpiece_symbol, variation: "mythic rare")
+	rarity 2:
+		right: 724
+		top: 53
+		width: 44
+		height: 22
+		z index: 3
+		render style: image
+		alignment: middle right
+		choice images:
+			# Images based on the set symbol
+			basic land:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "c.png"
+					else if styling.inverted_common_symbol then symbol_variation(symbol: set.symbol, variation: "invertedcommon")
+					else symbol_variation(symbol: set.symbol, variation: "common")
+			common:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "c.png"
+					else if styling.inverted_common_symbol then symbol_variation(symbol: set.symbol, variation: "invertedcommon")
+					else symbol_variation(symbol: set.symbol, variation: "common")
+			uncommon:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "u.png"
+					else symbol_variation(symbol: set.symbol, variation: "uncommon")
+			rare:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "r.png"
+					else symbol_variation(symbol: set.symbol, variation: "rare")
+			mythic rare:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "m.png"
+					else symbol_variation(symbol: set.symbol, variation: "mythic rare")
+			special:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "s.png"
+					else symbol_variation(symbol: set.symbol, variation: "special")
+			masterpiece:
+				script:
+					if use_main_rarity() then "/magic-mainframe-extras.mse-include/" + un_png(set.mainframe_rarity_name) + "mp.png"
+					else symbol_variation(symbol: set.masterpiece_symbol, variation: "mythic rare")
+	############################# Text box
+	text:
+		left: 64
+		top: {top_of_textbox()}
+		width: 422
+		bottom: {bottom_of_textbox()}
+		font:
+			name: MPlantin
+			italic name: MPlantin-Italic
+			size: 14
+			scale down to: 6
+			color: black
+		symbol font:
+			name: { styling.text_box_mana_symbols }
+			size: 14
+		alignment: middle left
+		mask: { "battle_text_mask.png" }
+		z index: 2
+		padding left:   6
+		padding right:  4
+		line height hard: {if is_modal(card.text) then 0.9 else 1.2 }
+		line height line: 1.5
+		line height soft: 0.9
+		line height hard max: {if is_modal(card.text) then 1.0 else 1.3 }
+		line height line max: 1.6
+	text 2:
+		left: 565
+		top: { top_of_textbox2() }
+		width: 287
+		bottom: { bottom_of_textbox2()}
+		font:
+			name: MPlantin
+			italic name: MPlantin-Italic
+			size: 14
+			scale down to: 6
+		symbol font:
+			name: { styling.text_box_mana_symbols }
+			size:14
+		alignment:
+			script:	if chosen(styling.other_options, choice:"center back") then "middle center" else "middle left"
+		z index: 5
+		padding left:   6
+		padding right:  4
+		line height hard: {if is_modal(card.rule_text_2) then 0.9 else 1.2 }
+		line height line: 1.5
+		line height soft: 0.9
+		line height hard max: {if is_modal(card.rule_text_2) then 1.0 else 1.3 }
+		line height line max: 1.6
+	############################# Loyalty/Defense
+	loyalty:
+		z index: 3
+		left: 479
+		top: 332
+		width: 21
+		height:	26
+		alignment: center middle
+		font:
+			name: Beleren Bold
+			size: 14
+			color: white
+			separator color: red
+	############################# Card sorting / numbering
+	set code:
+		left: 22
+		top: 24
+		width: 26
+		height: 7
+		z index: 1
+		angle: 270
+		font:
+			name: Relay-Medium
+			size: 7
+			color: white
+			weight: bold
+	set code 2:
+		left: 547
+		top: 498
+		width: 40
+		height: 10
+		z index: 6
+		font:
+			name: Relay-Medium
+			size: 7
+			color: white
+			weight: bold
+	############################# Copyright stuff
+	illustrator:
+		left: 22
+		top: { 44 + card_style.set_code.content_width }
+		width: 140
+		height: 7
+		z index: 2
+		angle: 270
+		font:
+			name: Beleren Small Caps Bold
+			size: 7.5
+			color: white
+	copyright:
+		left: 32
+		top: 214
+		width: 140
+		height: 7
+		z index: 2
+		visible: {not set.automatic_copyright}
+		angle: 270
+		alignment: middle right shrink-overflow
+		font:
+			name: Matrix
+			size: 7.25
+			color: white
+			weight: bold
+	illustrator 2:
+		left: { 567 + card_style.set_code.content_width }
+		top: 497.5
+		width: 200
+		height: 10
+		z index: 2
+		font:
+			name: Beleren Small Caps Bold
+			size: 7.25
+			color: white
+	copyright 2:
+		right: 876
+		top: 504
+		width: { if set.automatic_copyright then 0 else 140 }
+		height: 10
+		z index: 6
+		alignment: middle right shrink-overflow
+		font:
+			name: MPlantin
+			size: 6.5
+			color: white
+			weight: bold
+
+############################################################## Extra card fields
+extra card field:
+	type: text
+	name: card code
+	save value: false
+	script:
+		if set.automatic_card_numbers and not is_unsorted() then
+			forward_editor(prefix: card_number_m15() + "a/" + card_count_m15() + " " + rarity_code() + " ", field: card.card_code_text)
+		else
+			combined_editor(field1: card.custom_card_number, separator: " " + rarity_code() + " ", field2: card.card_code_text)
+extra card field:
+	type: text
+	name: card code 2
+	save value: false
+	script:
+		if set.automatic_card_numbers and not is_unsorted() then
+			forward_editor(prefix: card_number_m15() + "b/" + card_count_m15() + " " + rarity_code() + " ", field: card.card_code_text_2)
+		else
+			back_face(card.custom_card_number) + " " + rarity_code() + " " + card.card_code_text_2
+extra card field:
+	type: choice
+	name: artist arrow
+	editable: false
+	save value: false
+	choice: white
+extra card field:
+	type: choice
+	name: artist arrow 2
+	editable: false
+	save value: false
+	choice: white
+extra card field:
+	type: choice
+	name: stamp
+	script: card.card_color
+	editable: false
+	save value: false
+extra card field:
+	type: choice
+	name: foil layer
+	choice: foil
+	save value: false
+	editable: false
+extra card field:
+	type: choice
+	name: foil layer 2
+	choice: foil
+	save value: false
+	editable: false
+extra card field:
+	type: text
+	name: auto copyright
+	script: set.copyright
+	save value: false
+	editable: false
+	show statistics: false
+extra card field:
+	type: text
+	name: auto copyright 2
+	script: set.copyright
+	save value: false
+	editable: false
+	show statistics: false
+extra card field:
+	type: choice
+	name: corner
+	choice: none
+	choice: day
+	choice: night
+	choice: moon
+	choice: eldrazi
+	choice: compass
+	choice: artifact
+	choice: creature
+	choice: enchantment
+	choice: instant
+	choice: land
+	choice: multitype
+	choice: sorcery
+	choice: planeswalker
+	choice: structure
+	choice: aetherprint
+	choice: modal
+	choice:
+		name: sparker colors
+		choice: white
+		choice: blue
+		choice: black
+		choice: red
+		choice: green
+		choice: multicolor
+		choice: colorless
+	choice: custom one
+	choice: custom two
+	default: "day"
+	script: value
+	save value: true
+	editable: true
+extra card field:
+	type: choice
+	name: corner 2
+	choice: none
+	choice: day
+	choice: night
+	choice: moon
+	choice: eldrazi
+	choice: compass
+	choice: artifact
+	choice: creature
+	choice: enchantment
+	choice: instant
+	choice: land
+	choice: multitype
+	choice: sorcery
+	choice: planeswalker
+	choice: structure
+	choice: aetherprint
+	choice: modal
+	choice:
+		name: sparker colors
+		choice: white
+		choice: blue
+		choice: black
+		choice: red
+		choice: green
+		choice: multicolor
+		choice: colorless
+	choice: custom one
+	choice: custom two
+	script: value
+	default: "night"
+	save value: true
+	editable: true
+extra card field:
+	type: choice
+	name: floating frame 2
+	choice: map
+	save value: false
+	editable: false
+	script: card.card_color_2
+extra card field:
+	type: choice
+	name: flavor bar
+	choice: bar
+	editable: false
+	save value: false
+	show statistics: false
+extra card field:
+	type: choice
+	name: flavor bar 2
+	choice: bar
+	editable: false
+	save value: false
+	show statistics: false
+extra card style:
+	card code:
+		left: 32
+		top: 24
+		width: 79
+		height: 7
+		z index: 1
+		angle: 270
+		font:
+			name: Relay-Medium
+			size: 7
+			color: white
+			weight: bold
+	card code 2:
+		left: 547
+		top: 488
+		width: 120
+		height: 10
+		z index: 2
+		font:
+			name: Relay-Medium
+			size: 7
+			color: white
+			weight: bold
+	artist arrow:
+		left: 19
+		top: { 28 + card_style.set_code.content_width }
+		width: 12
+		height: 7
+		z index: 1
+		angle: 270
+		render style: image
+		image: artist_arrow.png
+	artist arrow 2:
+		left: { 551 + card_style.set_code_2.content_width }
+		top: 500
+		width: 12
+		height: 7
+		z index: 2
+		render style: image
+		image: artist_arrow.png
+	foil layer:
+		left: 0
+		top : 0
+		width: 375
+		height: 523
+		z index: 3
+		render style: image
+		image: {if styling.overlay == "" then nil else styling.overlay + "/overlay.png"}
+		mask: { if is_rare() then "foil_mask_rare.png" else "foil_mask.png" }
+	foil layer 2:
+		left: 525
+		top: 0
+		width: 375
+		height: 523
+		z index: 14
+		render style: image
+		image: {if styling.overlay == "" then "" else styling.overlay + "/overlay.png"}
+	auto copyright:
+		left: 32
+		top: 214
+		width: {if set.automatic_copyright then 140 else 0}
+		height: 7
+		z index: 3
+		angle: 270
+		alignment: middle right shrink-overflow
+		font:
+			name: Matrix
+			size: 7.25
+			color: white
+			weight: bold
+	auto copyright 2:
+		right: 876
+		top: 498
+		width: { if set.automatic_copyright then 140 else 0 }
+		height: 10
+		z index: 6
+		alignment: middle right shrink-overflow
+		font:
+			name: MPlantin
+			size: 6.5
+			color: white
+			weight: bold
+	corner:
+		left: 60
+		top:  19
+		height: 27
+		width: 27
+		z index: 5
+		render style: image
+		choice images:
+			day: sun_circle.png
+			night: night_circle.png
+			eldrazi: eldrazi.png
+			moon: moon.png
+			compass: compass.png
+			artifact: artifact.png
+			creature: creature.png
+			enchantment: enchantment.png
+			instant: instant.png
+			land: land.png
+			multitype: multitype.png
+			sorcery: sorcery.png
+			planeswalker: planeswalker.png
+			structure: structure.png
+			compass: compass.png
+			aetherprint: aetherprint.png
+			custom one: { if contains(styling.custom_symbol_one, match:".png") then "/magic-mainframe-extras.mse-include/" + styling.custom_symbol_one else "" }
+			custom two: { if contains(styling.custom_symbol_two, match:".png") then "/magic-mainframe-extras.mse-include/" + styling.custom_symbol_two else "" }
+	corner 2:
+		left: 547
+		top: 24
+		height: 31
+		width: 31
+		z index: 5
+		render style: image
+		choice images:
+			day: sun_circle.png
+			night: night_circle.png
+			eldrazi: eldrazi.png
+			moon: moon.png
+			compass: compass.png
+			artifact: artifact.png
+			creature: creature.png
+			enchantment: enchantment.png
+			instant: instant.png
+			land: land.png
+			multitype: multitype.png
+			sorcery: sorcery.png
+			planeswalker: planeswalker.png
+			structure: structure.png
+			compass: compass.png
+			aetherprint: aetherprint.png
+			custom one: { if contains(styling.custom_symbol_one, match:".png") then "/magic-mainframe-extras.mse-include/" + styling.custom_symbol_one else "" }
+			custom two: { if contains(styling.custom_symbol_two, match:".png") then "/magic-mainframe-extras.mse-include/" + styling.custom_symbol_two else "" }
+	floating frame 2:
+		left: 525
+		top: 0
+		width: 375
+		height: 523
+		z index: 1
+		render style: image
+		image: { map_background() }
+		mask: maps/frame_mask.png
+	flavor bar:
+		left: 64
+		top: { bar_equation() }
+		width: 422
+		height: 1
+		z index: 1
+		render style: image
+		image: bar.png
+		visible: { card.rule_text != "" and remove_tags(card.flavor_text) != "" and set.use_flavor_bar }
+	flavor bar 2:
+		left: 525
+		top: { bar_equation2() }
+		width: 375
+		height: 1
+		z index: 1
+		render style: image
+		image: bar.png
+		visible: { card.rule_text_2 != "" and remove_tags(card.flavor_text_2) != "" and set.use_flavor_bar }

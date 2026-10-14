@@ -221,8 +221,9 @@ init script:
 	use_main_rarity := { contains(set.mainframe_rarity_name, match: ".png")}
 	un_png := replace@(match:".png", replace: "")
 	a_saga := {true}
-	saga_reminder := { if styling.alternate_reminder != "" then styling.alternate_reminder else if is_class() then "Gain the next level as a sorcery to add its ability." else "As this Saga enters and after your draw step, add a lore counter. Sacrifice after III." }
+	saga_reminder := { if styling.alternate_reminder != "" then styling.alternate_reminder else if is_gallery() then "Choose only one work as a sorcery to add its ability." else if is_class() then "Gain the next level as a sorcery to add its ability." else "As this Saga enters and after your draw step, add a lore counter. Sacrifice after III." }
 	is_class := {contains(styling.other_options, match:"class") or lang_setting("is_class")(remove_tags(card.sub_type))}
+	is_gallery := {contains(card.sub_type, match:"Gallery")}
 	is_case := {contains(styling.other_options, match:"case") or lang_setting("is_case")(remove_tags(card.sub_type))}
 	is_saga := {not is_class() and not is_case()}
 	un_marked := {is_class() or is_case() or contains(styling.other_options, match:"remove bookmark")}
@@ -294,7 +295,7 @@ init script:
 	}
 	
 	level_label_font_size := {
-		if styling.level_label_font_size != "" then styling.level_label_font_size else 11
+		if styling.level_label_font_size != "" then styling.level_label_font_size else if is_gallery() then 10 else 11
 	}
 	custom_border_image := {
 		src := styling.custom_border_source
@@ -586,15 +587,15 @@ card style:
 	level 9 text:
 		left: 190
 		width: {if not is_class() or card.level_2_text == "​" then 0 else 80}
-		top: {lev2()+4}
+		top: {if is_gallery() then lev2()+2 else lev2()+4}
 		height: 20
 		z index: 900
 		font:
 			name: MPlantin
-			size: 12
+			size: {if is_gallery() then 10 else 12}
 		symbol font:
 			name: magic-mana-small
-			size: 12
+			size: {if is_gallery() then 11 else 12}
 		alignment: middle left
 	level 2:
 		left: 270
@@ -613,15 +614,15 @@ card style:
 	level 10 text:
 		left: 190
 		width: {if not is_class() or card.level_3_text == "​" then 0 else 80}
-		top: {lev3()+4}
+		top: {if is_gallery() then lev3()+6 else lev3()+4}
 		height: 20
 		z index: 900
 		font:
 			name: MPlantin
-			size: 12
+			size: {if is_gallery() then 10 else 12}
 		symbol font:
 			name: magic-mana-small
-			size: 12
+			size: {if is_gallery() then 11 else 12}
 			alignment: middle left
 	level 3:
 		left: 270

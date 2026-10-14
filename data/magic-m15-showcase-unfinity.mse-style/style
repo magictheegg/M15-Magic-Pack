@@ -31,6 +31,18 @@ card dpi: 150
 
 ############################################################## Extra scripts
 init script:
+	rarity_offset_top_1 := { 1 }
+
+	shrink_type := {
+		if styling.shrink_typeline_text != ""
+			then to_number(styling.shrink_typeline_text) or else 0
+		else if length(remove_tags(card.type)) > 41
+			then 2
+		else if length(remove_tags(card.type)) > 38
+			then 1
+		else 0
+	}
+
 	swap_fonts_pt_default :=
 	[
 		name: {"Beleren Bold"},
@@ -141,6 +153,10 @@ styling field:
 	name:			stretch image to whole card
 	description:	Make the image span the whole card instead of just the visible part. Used to help make popout effects.
 	initial:		no
+styling field:
+	type: text
+	name: shrink typeline text
+	description: Reduces the typeline text N points.
 
 include file: /magic-modules.mse-include/texts/styling_fields
 
