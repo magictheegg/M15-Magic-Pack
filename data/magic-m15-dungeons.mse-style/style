@@ -1,15 +1,16 @@
-﻿mse version: 2.0.0
-game: magic
-short name: Dungeons
-full name: AFR Dungeons
-icon: card-sample.png
-installer group: magic/m15 style/normal cards
-position hint: 099
+mse version:		2.6.0
+game:				magic
+short name:			Dungeon
+full name:			AFR Dungeon
+icon:				card-sample.png
+position hint:		031000
+installer group:	magic/M15 Frames/Uncommon/Dungeon
 
-version: 2024-06-06
+
+version: 2026-09-06
 depends on:
 	package: magic.mse-game
-	version: 2014-06-25
+	version: 2026-09-06
 depends on:
 	package: magic-mainframe-extras.mse-include
 	version: 2018-01-01
@@ -62,8 +63,7 @@ init script:
 	shrink_name := {if styling.shrink_name_text != "" then to_int(styling.shrink_name_text) else 0 }
 	note_cleaner := replace@(match:"\\+", replace:"")
 	num_cleaner := replace@(match:"[0-9]", replace:"")
-	font_size := {if styling.font_size != "" then styling.font_size else 12}
-	font_color := {if styling.advanced_scripts == "preview" then "white" else "black"}
+
 	custom_sym := {
 		c_folder := if contains(styling.arrow_replacement_folder, match:"/") then styling.arrow_replacement_folder else ""
 		if input == "1" then
@@ -616,6 +616,37 @@ init script:
 		][input]
 	}
 
+	swap_fonts_name_default := [
+		name: {"Beleren Small Caps Bold"},
+		size: {17},
+		color: {rgb(222,222,222)},
+		vertical: {0},
+		italic: {""},
+		stroke: {0},
+		stroke_color: {"black"},
+		stroke_blur: {0}
+	]
+	swap_fonts_body_default := [
+		name: {"MPlantin"},
+		size: { if styling.font_size != "" then styling.font_size else 12 },
+		color: { if styling.advanced_scripts == "preview" then "white" else "black" },
+		vertical: {0},
+		italic: {"MPlantin-Italic"},
+		stroke: {0},
+		stroke_color: {"black"},
+		stroke_blur: {0}
+	]
+	swap_fonts_body2_default := [
+		name: {"MPlantin"},
+		size: { if styling.font_size != "" then styling.font_size else 12 },
+		color: {"black"},
+		vertical: {0},
+		italic: {"MPlantin-Italic"},
+		stroke: {0},
+		stroke_color: {"black"},
+		stroke_blur: {0}
+	]
+
 ############################################################## Set info fields
 styling field:
 	type: choice
@@ -917,6 +948,24 @@ styling field:
 	choice: modern
 	choice: old
 	choice: diagonal T
+styling field:
+	type: boolean
+	name: apply custom fonts
+	description: Enable to attempt to use custom fonts given below
+	initial: no
+styling field:
+	type: text
+	name: custom name font
+	description: Formatted as "font name;font size;font color;vertical offset;italic font name" last 4 are optional. color can be a name or R,G,B,A numbers.
+styling field:
+	type: text
+	name: custom body font
+	description: Formatted as "font name;font size;font color;vertical offset;italic font name" last 4 are optional. color can be a name or R,G,B,A numbers.
+styling field:
+	type: text
+	name: custom body 2 font
+	description: Formatted as "font name;font size;font color;vertical offset;italic font name" last 4 are optional. color can be a name or R,G,B,A numbers.
+
 styling style:
 	advanced scripts:
 		render style: both
@@ -958,9 +1007,12 @@ card style:
 		padding top: 3
 		z index: 5
 		font:
-			name: Beleren Small Caps Bold
-			size: { 17 - shrink_name()}
-			color: rgb(222,222,222)
+			name: { name_font() }
+			size: { name_font_size() - shrink_name()}
+			color: { name_font_color() }
+			stroke radius:		{ name_font_stroke() }
+			stroke color:		{ name_font_stroke_color() }
+			stroke blur:		{ name_font_stroke_blur() }
 	############################# Image
 	image:
 		left: 22
@@ -968,6 +1020,7 @@ card style:
 		width: {if styling.custom_floor then 331 else 0}
 		height: 391
 		z index: 0
+		store in metadata: true
 	############################# Textboxes
 	rule text:
 		left: {box_x(x:1, y:1)}
@@ -975,14 +1028,20 @@ card style:
 		width: {box_w(x:1, y:1)}
 		height: {box_h(x:1, y:1)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1001,14 +1060,20 @@ card style:
 		width: {box_w(x:2, y:1)}
 		height: {box_h(x:2, y:1)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1025,14 +1090,20 @@ card style:
 		width: {box_w(x:3, y:1)}
 		height: {box_h(x:3, y:1)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1051,14 +1122,20 @@ card style:
 		width: {box_w(x:1, y:2)}
 		height: {box_h(x:1, y:2)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1077,14 +1154,20 @@ card style:
 		width: {box_w(x:2, y:2)}
 		height: {box_h(x:2, y:2)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1103,14 +1186,20 @@ card style:
 		width: {box_w(x:3, y:2)}
 		height: {box_h(x:3, y:2)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1129,14 +1218,20 @@ card style:
 		width: {box_w(x:1, y:3)}
 		height: {box_h(x:1, y:3)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1155,14 +1250,20 @@ card style:
 		width: {box_w(x:2, y:3)}
 		height: {box_h(x:2, y:3)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1181,14 +1282,20 @@ card style:
 		width: {box_w(x:3, y:3)}
 		height: {box_h(x:3, y:3)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1207,14 +1314,20 @@ card style:
 		width: {box_w(x:1, y:4)}
 		height: {box_h(x:1, y:4)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1233,14 +1346,20 @@ card style:
 		width: {box_w(x:2, y:4)}
 		height: {box_h(x:2, y:4)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1259,14 +1378,20 @@ card style:
 		width: {box_w(x:3, y:4)}
 		height: {box_h(x:3, y:4)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1285,14 +1410,20 @@ card style:
 		width: {box_w(x:1, y:5)}
 		height: {box_h(x:1, y:5)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1311,14 +1442,20 @@ card style:
 		width: {box_w(x:2, y:5)}
 		height: {box_h(x:2, y:5)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1337,14 +1474,20 @@ card style:
 		width: {box_w(x:3, y:5)}
 		height: {box_h(x:3, y:5)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1363,14 +1506,20 @@ card style:
 		width: {box_w(x:1, y:6)}
 		height: {box_h(x:1, y:6)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1389,14 +1538,20 @@ card style:
 		width: {box_w(x:2, y:6)}
 		height: {box_h(x:2, y:6)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1415,14 +1570,20 @@ card style:
 		width: {box_w(x:3, y:6)}
 		height: {box_h(x:3, y:6)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1441,14 +1602,20 @@ card style:
 		width: {box_w(x:1, y:7)}
 		height: {box_h(x:1, y:7)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1467,14 +1634,20 @@ card style:
 		width: {box_w(x:2, y:7)}
 		height: {box_h(x:2, y:7)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1494,14 +1667,20 @@ card style:
 		width: {box_w(x:3, y:7)}
 		height: {box_h(x:3, y:7)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1521,14 +1700,20 @@ card style:
 		width: {box_w(x:1, y:8)}
 		height: {box_h(x:1, y:8)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1547,14 +1732,20 @@ card style:
 		width: {box_w(x:2, y:8)}
 		height: {box_h(x:2, y:8)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1574,14 +1765,20 @@ card style:
 		width: {box_w(x:3, y:8)}
 		height: {box_h(x:3, y:8)}
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body_font() }
+			italic name: { body_font_italic() }
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
-			color: {font_color()}
+			color: { body_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 5
@@ -1640,7 +1837,7 @@ card style:
 				)
 		visible:			{ not information_disabled_1() and card.illustrator != "" }
 		popup style:		in place
-		include file:		/magic.mse-game/information/menu_choice_images
+		include dark file:		/magic.mse-game/information/menu_choice_images
 		render style:		image
 		image:				{ illustrator_brush_image(field: 1) }
 		z index:			900
@@ -2662,14 +2859,17 @@ extra card style:
 		height: 27
 		z index: 3
 		font:
-			name: MPlantin
-			italic name: MPlantin-Italic
-			size: {font_size()}
+			name: { body2_font() }
+			italic name: { body2_font_italic() }
+			size: { body2_font_size() }
 			scale down to: 6
-			color: black
+			color: { body2_font_color() }
 		symbol font:
 			name: { styling.text_box_mana_symbols }
-			size: {font_size()}
+			size: { body_font_size() }
+			stroke radius: { body_font_stroke() }
+			stroke color: { body_font_stroke_color() }
+			stroke blur: { body_font_stroke_blur() }
 			scale down to: 6
 		alignment: middle center
 		z index: 2
