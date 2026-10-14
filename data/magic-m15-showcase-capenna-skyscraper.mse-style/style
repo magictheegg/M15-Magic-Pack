@@ -207,7 +207,25 @@ include file: /magic-modules.mse-include/separators/card_fields
 
 include file: /magic-modules.mse-include/namelines/card_fields
 
-include file: /magic-modules.mse-include/typelines/card_fields
+include file: /magic-modules.mse-include/rarities/card_fields
+
+include file: /magic-modules.mse-include/indicators/card_fields
+
+card style:
+	type:
+		left:				{ indicator_left_1() + type_indicator_shift_1() + type_offset_left_1() + typeline_offset_left_1() }
+		top:				{ indicator_top_1() - indicator_size_1() * 0.2 + type_offset_top_1() + typeline_offset_top_1() + type_font_vertical() }
+		right:				{ rarity_left_1() + type_offset_right_1() + typeline_offset_left_1() + typeline_offset_width_1() - typeline_offset_height_1() }
+		height:				{ indicator_size_1() * 1.3 + type_offset_height_1() + typeline_offset_height_1() }
+		z index:			900
+		alignment:			middle left shrink-overflow
+		visible:			{ (not typeline_disabled_1()) and not type_disabled_1() }
+		font:
+			name:				{ type_font() }
+			italic name:		{ type_font_italic() }
+			size:				{ type_font_size() }
+			color:				white
+			separator color:	red
 
 include file: /magic-modules.mse-include/foils/card_fields
 
@@ -246,9 +264,9 @@ card style:
 		z index:			1010
 	############################# Text box
 	text:
-		left:				65
+		left:				69
 		top:				{ 657 + chop_top() + (if is_stamped() then 7 else 0) + body_font_vertical() }
-		right:				{ 677 - chop_right() }
+		right:				{ 673 - chop_right() }
 		bottom:				{ 953 - chop_bottom() - if is_stamped() then 7 else 0 }
 		z index:			900
 		line height hard:	{ if is_modal(card.rule_text) then 0.9 else 1.2 }
@@ -286,7 +304,7 @@ card style:
 		font:
 			name:				{ pt_font() }
 			size:				{ pt_font_size() }
-			color:				{ pt_font_color() }
+			color:				white
 			separator color:	red
 
 ############################################################## Extra card fields

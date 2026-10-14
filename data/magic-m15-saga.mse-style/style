@@ -223,9 +223,9 @@ init script:
 	a_saga := {true}
 	saga_reminder := { if styling.alternate_reminder != "" then styling.alternate_reminder else if is_gallery() then "Choose only one work as a sorcery to add its ability." else if is_class() then "Gain the next level as a sorcery to add its ability." else "As this Saga enters and after your draw step, add a lore counter. Sacrifice after III." }
 	is_class := {contains(styling.other_options, match:"class") or lang_setting("is_class")(remove_tags(card.sub_type))}
-	is_gallery := {contains(card.sub_type, match:"Gallery")}
+	is_gallery := {contains(styling.other_options, match:"gallery") or lang_setting("is_class")(remove_tags(card.sub_type))}
 	is_case := {contains(styling.other_options, match:"case") or lang_setting("is_case")(remove_tags(card.sub_type))}
-	is_saga := {not is_class() and not is_case()}
+	is_saga := {not is_class() and not is_case() and not is_gallery()}
 	un_marked := {is_class() or is_case() or contains(styling.other_options, match:"remove bookmark")}
 	is_legend :=	{ auto_legend() }
 	is_vehicle :=	{ auto_vehicle()	or contains(styling.other_options, match:"vehicle") }
@@ -382,6 +382,7 @@ styling field:
 	choice: snow
 	choice: class
 	choice: case
+	choice: gallery
 	choice: universes beyond
 	choice: custom border
 	choice: use starting loyalty
@@ -595,7 +596,7 @@ card style:
 			size: {if is_gallery() then 10 else 12}
 		symbol font:
 			name: magic-mana-small
-			size: {if is_gallery() then 11 else 12}
+			size: {if is_gallery() then 10 else 12}
 		alignment: middle left
 	level 2:
 		left: 270
@@ -622,7 +623,7 @@ card style:
 			size: {if is_gallery() then 10 else 12}
 		symbol font:
 			name: magic-mana-small
-			size: {if is_gallery() then 11 else 12}
+			size: {if is_gallery() then 10 else 12}
 			alignment: middle left
 	level 3:
 		left: 270
@@ -1280,7 +1281,7 @@ extra card style:
 		height: {if is_case() or is_class() then 2 else 3}
 		render style: image
 		z index: 720
-		image: {if is_case() then "bar.png" else if is_class() then class_bar() else "line.png"}
+		image: {if is_gallery() then "work.png" else if is_case() then "bar.png" else if is_class() then class_bar() else "line.png"}
 		visible: {(is_class() and card.chapter_text != "" and card.level_1_text != "") or is_case() or not un_marked()}
 	linebreak 2:
 		left: {30+if is_class() or is_case() then 158 else 0}
@@ -1289,7 +1290,7 @@ extra card style:
 		height: {if is_class() or is_case() then 25 else 3}
 		render style: image
 		z index: 720
-		image: {if is_case() then "levelline.png" else if is_class() then class_bar() else "line.png"}
+		image: {if is_gallery() then "work.png" else if is_case() then "levelline.png" else if is_class() then class_bar() else "line.png"}
 	linebreak 3:
 		left: {30+if is_class() then 158 else 0}
 		top: {if is_class() then lev3() else if split_23() == "" then 342 else split_23()-1}
@@ -1297,7 +1298,7 @@ extra card style:
 		height: {if is_class() then 25 else 3}
 		render style: image
 		z index: 720
-		image: {if is_class() then class_bar() else "line.png"}
+		image: {if is_gallery() then "work.png" else if is_class() then class_bar() else "line.png"}
 		visible: {three_boxes() or four_boxes() and not is_case()}
 	linebreak 4:
 		left: {30+if is_class() then 158 else 0}
@@ -1306,7 +1307,7 @@ extra card style:
 		height: {if is_class() then 25 else 3}
 		render style: image
 		z index: 720
-		image: {if is_class() then class_bar() else "line.png"}
+		image: {if is_gallery() then "work.png" else if is_class() then class_bar() else "line.png"}
 		visible: {is_class() or four_boxes() and not is_case()}
 	linebreak 5:
 		left: {30+if is_class() then 158 else 0}

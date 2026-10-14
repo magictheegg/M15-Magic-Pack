@@ -35,5 +35,6 @@ choice images:
 	masterpiece:
 		script:
 			if use_main_rarity() then mainframe_rarity("mp")
+			else if use_alt_rarity() then alt_symbol()
 			else symbol_variation(symbol: set.masterpiece_symbol, variation: "mythic rare")
 	

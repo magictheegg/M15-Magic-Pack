@@ -5172,7 +5172,7 @@ alt_rarity_color := {
 alt_symbol := {
 	alt_array := alt_rarity_color()
 	symbol_variation(
-		symbol:set.symbol,
+		symbol:set.masterpiece_symbol,
 		border_radius: alt_array.12,
 		fill_type: "linear gradient",
 		fill_color_1: rgb(alt_array.0, alt_array.1, alt_array.2),
