@@ -1,4 +1,4 @@
-﻿ version:		2.6.0
+﻿mse version:		2.6.0
 game:				magic
 short name:			M15 Saga
 full name:			also Class, Case
@@ -342,16 +342,11 @@ init script:
 
 	### Reminder text
 	a_saga := {true}
-	saga_reminder := { if styling.alternate_reminder != "" then styling.alternate_reminder else if is_gallery() then "Choose only one work as a sorcery to add its ability." else if is_class() then "Gain the next level as a sorcery to add its ability." else "As this Saga enters and after your draw step, add a lore counter. Sacrifice after III." }
-	is_class := {contains(styling.other_options, match:"class") or lang_setting("is_class")(remove_tags(card.sub_type))}
-	is_gallery := {contains(styling.other_options, match:"gallery") or lang_setting("is_class")(remove_tags(card.sub_type))}
-	is_case := {contains(styling.other_options, match:"case") or lang_setting("is_case")(remove_tags(card.sub_type))}
-	is_saga := {not is_class() and not is_case() and not is_gallery()}
-	un_marked := {is_class() or is_case() or contains(styling.other_options, match:"remove bookmark")}
-
 	saga_reminder := {
 		if styling.alternate_reminder != ""
 			then styling.alternate_reminder
+		else if is_gallery()
+			then "Choose only one work as a sorcery to add its ability."
 		else if is_class()
 			then "Gain the next level as a sorcery to add its ability."
 		else (
@@ -363,6 +358,10 @@ init script:
 	}
 
 	### Frames
+	is_gallery := {
+		chosen(styling.other_options, choice:"gallery")
+		or lang_setting("is_class")(remove_tags(card.sub_type))
+	}
 	is_class := {
 		chosen(styling.other_options, choice:"class")
 		or lang_setting("is_class")(remove_tags(card.sub_type))
@@ -371,7 +370,7 @@ init script:
 		chosen(styling.other_options, choice:"case")
 		or lang_setting("is_case")(remove_tags(card.sub_type))
 	}
-	is_saga := { not is_class() and not is_case() }
+	is_saga := { not is_class() and not is_case() and not is_gallery() }
 	
 	un_marked := {
 		is_class()
@@ -381,7 +380,6 @@ init script:
 	is_clear := {
 		chosen(styling.other_options, choice:"clear")
 	}
-
 	is_legend :=	{ auto_legend() }
 	is_vehicle :=	{ auto_vehicle()	or chosen(styling.other_options, choice:"vehicle") }
 	is_nyx :=		{ auto_nyx()		or chosen(styling.other_options, choice:"nyx") }
@@ -515,10 +513,6 @@ init script:
 		if transform_symbol_active_left(card.transformation) then image := set_mask(mask:node_mask())
 		image
 	}
-
-	level_label_font_size := {
-		if styling.level_label_font_size != "" then styling.level_label_font_size else if is_gallery() then 10 else 11
-
 	bottom_image := {
 		color_background(
 			type: "bottom",
@@ -580,7 +574,6 @@ init script:
 		if is_back_face() then image := color_multiply(width:744, height:1039, iterate:0.35)
 		image
 	}
-
 	custom_border_image := {
 		src := styling.custom_border_source
 		ps := split_text(src, match:"-color-")
@@ -887,7 +880,7 @@ init script:
 			else: "";
 	}
 	level_label_font_size := {
-		if styling.level_label_font_size != "" then styling.level_label_font_size else 11
+		if styling.level_label_font_size != "" then styling.level_label_font_size else if is_gallery() then 10 else 11
 	}
 	
 	top_of_text_column := { 
@@ -1357,6 +1350,7 @@ card style:
 		always symbol: true
 		z index: 	920
 		padding top: 0
+
 	## First class bar
 	level 9 text:
 		left: 		190
@@ -2251,40 +2245,7 @@ extra card style:
 		height:		{ if is_saga() then 3 else 25 }
 		z index:	720
 		render style: image
-		image: {if is_gallery() then "work.png" else if is_case() then "bar.png" else if is_class() then class_bar() else "line.png"}
-		visible: {(is_class() and card.chapter_text != "" and card.level_1_text != "") or is_case() or not un_marked()}
-	linebreak 2:
-		left: {30+if is_class() or is_case() then 158 else 0}
-		top: {if is_class() or is_case() then lev2() else if split_12() == "" then 248 else split_12()-1}
-		width: {if is_class() and card.level_2_text == "​" then 0 else 156}
-		height: {if is_class() or is_case() then 25 else 3}
-		render style: image
-		z index: 720
-		image: {if is_gallery() then "work.png" else if is_case() then "levelline.png" else if is_class() then class_bar() else "line.png"}
-	linebreak 3:
-		left: {30+if is_class() then 158 else 0}
-		top: {if is_class() then lev3() else if split_23() == "" then 342 else split_23()-1}
-		width: {if is_class() and card.level_3_text == "​" then 0 else 156}
-		height: {if is_class() then 25 else 3}
-		render style: image
-		z index: 720
-		image: {if is_gallery() then "work.png" else if is_class() then class_bar() else "line.png"}
-		visible: {three_boxes() or four_boxes() and not is_case()}
-	linebreak 4:
-		left: {30+if is_class() then 158 else 0}
-		top: {if is_class() then lev4() else if split_34() == "" then 600 else split_34()-1}
-		width: {if is_class() and card.level_4_text == "" then 0 else 156}
-		height: {if is_class() then 25 else 3}
-		render style: image
-		z index: 720
-		image: {if is_gallery() then "work.png" else if is_class() then class_bar() else "line.png"}
-		visible: {is_class() or four_boxes() and not is_case()}
-	linebreak 5:
-		left: {30+if is_class() then 158 else 0}
-		top: {to_number(pull_comma_array(styling.chapter_divider_coordinates, cell:3, end:true, default:600))}
-		width: 156
-		height: 3
-		image:		{ if is_saga() then "dividers/line.png" else "dividers/level_line.png" }
+		image:		{ if is_gallery() then "work.png" else if is_saga() then "dividers/line.png" else "dividers/level_line.png" }
 		visible:	{ is_case() or (is_saga() and not un_marked()) or (is_class() and card.chapter_text != "" and remove_zwsp(card.level_1_text) != "") }
 	divider 2:
 		left:		{ if is_saga() then 29 else 188 }
@@ -2293,7 +2254,7 @@ extra card style:
 		height:		{ if is_saga() then 3 else 25 }
 		z index:	720
 		render style: image
-		image:		{ if is_case() then "dividers/level_line.png" else if is_class() then class_bar(2) else "dividers/line.png" }
+		image:		{ if is_gallery() then "work.png" else if is_case() then "dividers/level_line.png" else if is_class() then class_bar(2) else "dividers/line.png" }
 		visible:	{ if is_class() and remove_zwsp(card.level_2_text) == "" then false else true }
 	divider 3:
 		left:		{ if is_saga() then 29 else 188 }
@@ -2302,7 +2263,7 @@ extra card style:
 		height:		{ if is_saga() then 3 else 25 }
 		z index:	720
 		render style: image
-		image:		{ if is_class() then class_bar(3) else "dividers/line.png" }
+		image:		{ if is_gallery() then "work.png" else if is_class() then class_bar(3) else "dividers/line.png" }
 		visible:	{ if is_case() then false else if is_class() and remove_zwsp(card.level_3_text) == "" then false else true }
 	divider 4:
 		left:		{ if is_saga() then 29 else 188 }
@@ -2311,7 +2272,7 @@ extra card style:
 		height:		{ if is_saga() then 3 else 25 }
 		z index:	720
 		render style: image
-		image:		{ if is_class() then class_bar(4) else "dividers/line.png" }
+		image:		{ if is_gallery() then "work.png" else if is_class() then class_bar(4) else "dividers/line.png" }
 		visible:	{ if is_case() then false else if is_class() and remove_zwsp(card.level_4_text) == "" then false else true }
 	divider 5:
 		left:		29
