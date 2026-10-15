@@ -1,4 +1,4 @@
-﻿mse version:		2.6.0
+mse version:		2.6.0
 game:				magic
 short name:			M15 Saga
 full name:			also Class, Case
@@ -338,7 +338,23 @@ init script:
 	}
 	###add blank spaces to inner levels so they still are clickable while "empty"
 	add_spacers := { if input == "" and (margin_code == "lv1" or margin_code == "lv2" or margin_code == "lv3") then "​" else input}
-	text_filter := text_filter + {apply_margins(input, name:margin_code)} + {add_spacers(input, name:margin_code)}
+	reminder_filter := {
+		input := remove_tag(input, tag:"<size-auto")
+		if margin_code == "chapter_text" then (
+			raw := remove_tags(input)
+			if styling.alternate_reminder != "" then
+				input := "<i-auto>(" + styling.alternate_reminder + ")</i-auto>"
+			else if raw == "default"
+				or (is_gallery() and (contains(raw, match:"Gain the next level") or contains(raw, match:"As this Saga enters")))
+				or (is_class() and not is_gallery() and (contains(raw, match:"Choose only one work") or contains(raw, match:"As this Saga enters")))
+				or (is_saga() and (contains(raw, match:"Choose only one work") or contains(raw, match:"Gain the next level")))
+				then input := "<i-auto>(" + saga_reminder() + ")</i-auto>"
+			if not is_saga() and styling.reminder_text_size != "" and input != "" then
+				input := "<size-auto:" + styling.reminder_text_size + ">" + input + "</size-auto:" + styling.reminder_text_size + ">"
+		)
+		input
+	}
+	text_filter := text_filter + {reminder_filter(input, margin_code:margin_code)} + {apply_margins(input, name:margin_code)} + {add_spacers(input, name:margin_code)}
 
 	### Reminder text
 	a_saga := {true}
@@ -360,10 +376,11 @@ init script:
 	### Frames
 	is_gallery := {
 		chosen(styling.other_options, choice:"gallery")
-		or lang_setting("is_class")(remove_tags(card.sub_type))
+		or match(remove_tags(card.sub_type), match:"(?i)Gallery")
 	}
 	is_class := {
 		chosen(styling.other_options, choice:"class")
+		or is_gallery()
 		or lang_setting("is_class")(remove_tags(card.sub_type))
 	}
 	is_case := {
@@ -2245,7 +2262,7 @@ extra card style:
 		height:		{ if is_saga() then 3 else 25 }
 		z index:	720
 		render style: image
-		image:		{ if is_gallery() then "work.png" else if is_saga() then "dividers/line.png" else "dividers/level_line.png" }
+		image:		{ if is_saga() then "dividers/line.png" else "dividers/level_line.png" }
 		visible:	{ is_case() or (is_saga() and not un_marked()) or (is_class() and card.chapter_text != "" and remove_zwsp(card.level_1_text) != "") }
 	divider 2:
 		left:		{ if is_saga() then 29 else 188 }
