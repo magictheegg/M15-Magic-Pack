@@ -91,6 +91,60 @@ def get_mse_version(set_text: str) -> str:
     return ""
 
 
+def fix_split_back_planeswalker(pre_card_block: str, back_card_block: str) -> str:
+    """
+    Fixes an MSE 2.6 DFC migration bug where pre-Oct-2024 `m15-mainframe-dfc`
+    cards stored back-face Planeswalker loyalty costs/abilities in
+    `loyalty_cost_5..8` and `level_5_text..level_8_text` (offset +4),
+    whereas MSE 2.6's `magic-m15-mainframe-dfc` update script looks in
+    `loyalty_cost_9..16` and `level_9_text..level_16_text` (offset +8),
+    leaving the split back-face Planeswalker with blank loyalty abilities.
+    """
+    pre_fields = extract_card_fields(pre_card_block)
+    back_fields = extract_card_fields(back_card_block)
+
+    if "planeswalker" not in back_fields.get("stylesheet", ""):
+        return back_card_block
+
+    # Check if back_card is missing loyalty/level text while pre_card had them at 5..8
+    has_back_text = any(
+        back_fields.get(f"level_{i}_text", "") or back_fields.get(f"loyalty_cost_{i}", "")
+        for i in range(1, 5)
+    )
+    has_pre_5_to_8 = any(
+        pre_fields.get(f"level_{i}_text", "") or pre_fields.get(f"loyalty_cost_{i}", "")
+        for i in range(5, 9)
+    )
+    if has_back_text or not has_pre_5_to_8:
+        return back_card_block
+
+    insert_lines: List[str] = []
+    for i in range(1, 5):
+        lc = pre_fields.get(f"loyalty_cost_{i + 4}", "")
+        if lc:
+            insert_lines.append(f"\tloyalty_cost_{i}: {lc}\n")
+    for i in range(1, 5):
+        lt = pre_fields.get(f"level_{i + 4}_text", "")
+        if lt:
+            insert_lines.append(f"\tlevel_{i}_text: {lt}\n")
+
+    if not insert_lines:
+        return back_card_block
+
+    # Insert right before `\tloyalty:` or `\tillustrator:` in back_card_block
+    lines = back_card_block.splitlines(keepends=True)
+    out_lines: List[str] = []
+    inserted = False
+    for line in lines:
+        if not inserted and (line.startswith("\tloyalty:") or line.startswith("\tillustrator:")):
+            out_lines.extend(insert_lines)
+            inserted = True
+        out_lines.append(line)
+    if not inserted:
+        out_lines.extend(insert_lines)
+    return "".join(out_lines)
+
+
 def reorder_cards(pre_cards: List[str], post_cards: List[str]) -> Tuple[List[str], dict]:
     """
     Reorders `post_cards` to match the original custom order of `pre_cards`.
@@ -199,6 +253,11 @@ def reorder_cards(pre_cards: List[str], post_cards: List[str]) -> Tuple[List[str
                                     used_post[c_idx] = True
                                     group.append(c_idx)
                                     break
+
+                    if len(group) >= 2:
+                        post_cards[group[1]] = fix_split_back_planeswalker(
+                            pre_cards[pre_idx], post_cards[group[1]]
+                        )
 
                     pre_to_post_indices[pre_idx].extend(group)
                     split_count += 1
