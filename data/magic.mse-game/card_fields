@@ -1,4 +1,4 @@
-﻿############################################################## Card fields
+############################################################## Card fields
 ############################################################## Automated fields
 ############################################################## Card shape
 card field:
@@ -1274,7 +1274,7 @@ card field:
 	card list column: 0760
 	card list width: 150
 	default: stylesheet; chapter_text_filter_default(value, card_name: card_name_for_face(1), margin_code:"chapter_text")
-	script: text_filter(value, card_styling:styling, card_name: card_name_for_face(1), margin_code:"chapter_text")
+	script: stylesheet; text_filter(value, card_styling:styling, card_name: card_name_for_face(1), margin_code:"chapter_text")
 card field:
 	type: text
 	name: chapter text 2
@@ -1285,7 +1285,7 @@ card field:
 	card list column: 0761
 	card list width: 150
 	default: stylesheet; chapter_text_filter_default(value, card_name: card_name_for_face(2), margin_code:"chapter_text2")
-	script: text_filter(value, card_styling:styling, card_name: card_name_for_face(2), margin_code:"chapter_text2")
+	script: stylesheet; text_filter(value, card_styling:styling, card_name: card_name_for_face(2), margin_code:"chapter_text2")
 
 ############################################################## Rules text
 ### The fields usually aren't used, see Combined text

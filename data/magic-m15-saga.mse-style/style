@@ -342,19 +342,21 @@ init script:
 		input := remove_tag(input, tag:"<size-auto")
 		if margin_code == "chapter_text" then (
 			raw := remove_tags(input)
-			if styling.alternate_reminder != "" then
-				input := "<i-auto>(" + styling.alternate_reminder + ")</i-auto>"
+			rem := card_styling.alternate_reminder or else styling.alternate_reminder
+			rem_size := card_styling.reminder_text_size or else styling.reminder_text_size
+			if rem != "" then
+				input := "<i-auto>(" + rem + ")</i-auto>"
 			else if raw == "default"
 				or (is_gallery() and (contains(raw, match:"Gain the next level") or contains(raw, match:"As this Saga enters")))
 				or (is_class() and not is_gallery() and (contains(raw, match:"Choose only one work") or contains(raw, match:"As this Saga enters")))
 				or (is_saga() and (contains(raw, match:"Choose only one work") or contains(raw, match:"Gain the next level")))
 				then input := "<i-auto>(" + saga_reminder() + ")</i-auto>"
-			if not is_saga() and styling.reminder_text_size != "" and input != "" then
-				input := "<size-auto:" + styling.reminder_text_size + ">" + input + "</size-auto:" + styling.reminder_text_size + ">"
+			if not is_saga() and rem_size != "" and input != "" then
+				input := "<size-auto:" + rem_size + ">" + input + "</size-auto:" + rem_size + ">"
 		)
 		input
 	}
-	text_filter := text_filter + {reminder_filter(input, margin_code:margin_code)} + {apply_margins(input, name:margin_code)} + {add_spacers(input, name:margin_code)}
+	text_filter := text_filter + {reminder_filter(input, card_styling:card_styling, margin_code:margin_code)} + {apply_margins(input, name:margin_code)} + {add_spacers(input, name:margin_code)}
 
 	### Reminder text
 	a_saga := {true}
